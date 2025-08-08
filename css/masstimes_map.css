@@ -143,7 +143,12 @@
 .parish-card[open] {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
 }
-
+.parish-card summary .parish-distance {
+  font-size: 0.9rem !important; /* Adjust size as needed */
+  font-weight: 400 !important;   /* Make it non-bold */
+  color: #555 !important;        /* A slightly lighter color */
+  margin-left: 0.5rem !important; /* Adds a little space */
+}
 .parish-card summary {
   position: relative !important;
   display: block !important;
