@@ -1,1 +1,6 @@
 /vendor/
+/web/
+/vendor/
+/recipes
+/phpcs.xml.dist
+/phpstan*
