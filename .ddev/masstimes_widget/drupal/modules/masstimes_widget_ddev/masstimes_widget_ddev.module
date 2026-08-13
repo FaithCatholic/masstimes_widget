@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * DDEV-only helpers for the MassTimes widget.
+ */
+
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
+/**
+ * Implements hook_page_attachments().
+ */
+function masstimes_widget_ddev_page_attachments(array &$attachments) {
+  $attachments['#attached']['library'][] = 'masstimes_widget_ddev/fonts';
+
+  \Drupal::messenger()->addWarning(new TranslatableMarkup('The %module module is enabled. It loads Font Awesome on every page so the widget icons render here. The widget does not ship that dependency, so make sure Font Awesome is already provided by your theme or another module on your own Drupal project.', [
+    '%module' => 'MassTimes Widget (DDEV)',
+  ]));
+}

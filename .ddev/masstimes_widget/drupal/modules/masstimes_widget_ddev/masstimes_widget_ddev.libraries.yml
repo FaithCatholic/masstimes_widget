@@ -1,0 +1,5 @@
+fonts:
+  css:
+    theme:
+      https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.0/css/all.min.css:
+        { type: external, minified: true }

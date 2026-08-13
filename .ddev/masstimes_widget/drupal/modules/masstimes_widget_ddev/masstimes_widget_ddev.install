@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Install and uninstall hooks for the MassTimes Widget (DDEV) module.
+ */
+
+use Drupal\block\Entity\Block;
+
+/**
+ * Implements hook_install().
+ *
+ * Places the widget block in the content region of the default theme so a
+ * fresh clone has something to look at without any manual block layout work.
+ */
+function masstimes_widget_ddev_install() {
+  $theme = \Drupal::config('system.theme')->get('default');
+  $id = $theme . '_masstimesmapfullscreenblock';
+
+  // Never clobber a block the developer already placed and configured.
+  if (Block::load($id)) {
+    return;
+  }
+
+  // Sit above everything else already placed in the content region.
+  $storage = \Drupal::entityTypeManager()->getStorage('block');
+  $existing = $storage->loadByProperties(['theme' => $theme, 'region' => 'content']);
+  $weight = 0;
+  foreach ($existing as $block) {
+    $weight = min($weight, $block->getWeight() - 1);
+  }
+
+  $storage->create([
+    'id' => $id,
+    'theme' => $theme,
+    'region' => 'content',
+    'weight' => $weight,
+    'plugin' => 'masstimes_map_block',
+    'settings' => [
+      'id' => 'masstimes_map_block',
+      'label' => 'MassTimes Map Fullscreen Block',
+      'label_display' => 'visible',
+      'default_lat' => '',
+      'default_lon' => '',
+    ],
+    'visibility' => [],
+  ])->save();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function masstimes_widget_ddev_uninstall() {
+  $theme = \Drupal::config('system.theme')->get('default');
+  $block = Block::load($theme . '_masstimesmapfullscreenblock');
+  if ($block) {
+    $block->delete();
+  }
+}
