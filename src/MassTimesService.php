@@ -35,13 +35,19 @@ class MassTimesService {
    * @param float $lon
    *   The longitude to search around.
    *
-   * @return array
-   *   The decoded API response.
+   * @return list<array<mixed, mixed>>
+   *   The decoded API response, one entry per parish.
    */
   public function fetchParishes(float $lat, float $lon): array {
     $url = "https://apiv4.updateparishdata.org/Churchs/?lat={$lat}&long={$lon}&pg=1";
     $resp = $this->http->request('GET', $url);
-    return Json::decode($resp->getBody()->getContents());
+    $data = Json::decode($resp->getBody()->getContents());
+
+    // The API is external, so drop anything that is not a parish record.
+    return array_values(array_filter(
+      is_array($data) ? $data : [],
+      'is_array'
+    ));
   }
 
 }
