@@ -1,6 +1,3 @@
 services:
   Drupal\masstimes_widget\MassTimesService:
     arguments: ['@http_client']
-  # Retained so existing references to the old service ID keep working.
-  masstimes_widget.service:
-    alias: Drupal\masstimes_widget\MassTimesService
