@@ -1,0 +1,4 @@
+hooks:
+  # this is here rather than on config.yaml so that it runs last
+  post-start:
+    - exec: /var/www/html/.ddev/post-start.sh
