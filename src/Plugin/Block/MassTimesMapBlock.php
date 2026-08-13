@@ -2,53 +2,77 @@
 
 namespace Drupal\masstimes_widget\Plugin\Block;
 
+use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\masstimes_widget\MassTimesService;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use GuzzleHttp\Exception\RequestException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Provides a 'MassTimes Map Fullscreen' block.
  *
- * @Block(
- *   id = "masstimes_map_block",
- *   admin_label = @Translation("MassTimes Map Fullscreen Block"),
- *   category = @Translation("MassTimes Widget")
- * )
+ * @phpstan-consistent-constructor
  */
+#[Block(
+  id: 'masstimes_map_block',
+  admin_label: new TranslatableMarkup('MassTimes Map Fullscreen Block'),
+  category: new TranslatableMarkup('MassTimes Widget'),
+)]
 class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The MassTimes service.
+   * Constructs a MassTimesMapBlock object.
    *
-   * @var \Drupal\masstimes_widget\MassTimesService
+   * @param array<string, mixed> $configuration
+   *   The plugin configuration.
+   * @param string $plugin_id
+   *   The plugin ID.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\masstimes_widget\MassTimesService $service
+   *   The MassTimes service.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request stack.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactory
+   *   The logger channel factory.
    */
-  protected MassTimesService $service;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, MassTimesService $service) {
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    protected MassTimesService $service,
+    protected RequestStack $requestStack,
+    protected LoggerChannelFactoryInterface $loggerFactory,
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->service = $service;
   }
 
   /**
    * {@inheritdoc}
+   *
+   * @phpstan-param array<string, mixed> $configuration
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('masstimes_widget.service')
+      $container->get('masstimes_widget.service'),
+      $container->get('request_stack'),
+      $container->get('logger.factory')
     );
   }
 
   /**
    * Provide default values for our lat and long.
+   *
+   * @return array<string, mixed>
+   *   The default block configuration.
    */
   public function defaultConfiguration() {
     return [
@@ -59,6 +83,14 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
 
   /**
    * Adds fields for default lat and long.
+   *
+   * @param array<string, mixed> $form
+   *   The block configuration form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   *
+   * @return array<string, mixed>
+   *   The block configuration form with our fields added.
    */
   public function blockForm($form, FormStateInterface $form_state) {
     $form = parent::blockForm($form, $form_state);
@@ -82,8 +114,13 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
 
   /**
    * Saving default lat/long to block.
+   *
+   * @param array<string, mixed> $form
+   *   The block configuration form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
    */
-  public function blockSubmit($form, FormStateInterface $form_state) {
+  public function blockSubmit($form, FormStateInterface $form_state): void {
     parent::blockSubmit($form, $form_state);
     $vals = $form_state->getValues();
     $this->configuration['default_lat'] = $vals['default_lat'];
@@ -92,11 +129,14 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
 
   /**
    * {@inheritdoc}
+   *
+   * @return array<string, mixed>
+   *   The render array for the map and parish sidebar.
    */
   public function build() {
-    $request = \Drupal::request();
-    $lat = $request->query->get('lat');
-    $lon = $request->query->get('long');
+    $request = $this->requestStack->getCurrentRequest();
+    $lat = $request?->query->get('lat');
+    $lon = $request?->query->get('long');
 
     // If url doesn't have lat/long, we fall back to block defaults.
     if ((string) $lat === '' || (string) $lon === '') {
@@ -111,14 +151,14 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
         usort($parishes, fn($a, $b) => ($a['distance'] ?? 0) <=> ($b['distance'] ?? 0));
       }
       catch (RequestException $e) {
-        \Drupal::logger('masstimes_widget')->error($e->getMessage());
+        $this->loggerFactory->get('masstimes_widget')->error($e->getMessage());
       }
     }
 
     // Build GeoJSON features.
     $features = [];
     foreach ($parishes as $i => $p) {
-      if (empty($p['latitude']) || empty($p['longitude'])) {
+      if (!is_numeric($p['latitude'] ?? NULL) || !is_numeric($p['longitude'] ?? NULL)) {
         continue;
       }
       $features[] = [
@@ -132,7 +172,7 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
           'name'    => $p['name'] ?? '',
           'address' => $p['church_address_street_address'] ?? '',
           'wptimes' => $p['church_worship_times'] ?? [],
-          'distance' => round($p['distance'], 1),
+          'distance' => is_numeric($p['distance'] ?? NULL) ? round((float) $p['distance'], 1) : NULL,
         ],
       ];
     }
