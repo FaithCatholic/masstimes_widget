@@ -36,8 +36,13 @@ A custom Drupal module embedding a full-screen interactive map and sidebar list 
 3. Clear caches: `drush cr`.
 
 No contrib module dependencies are required. Leaflet is loaded from a CDN by the
-module's own asset library, and Font Awesome is expected to be provided by your
-theme or another module on your site.
+module's own asset library.
+
+> [!WARNING]
+> **Font Awesome is not shipped with this module.** The map markers, search
+> form, and parish cards all render Font Awesome icons, so make sure your theme
+> or another module already loads Font Awesome site-wide. Without it, those
+> icons render as blank boxes.
 
 ---
 
