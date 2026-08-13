@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * @file
+ */
+
 /**
  * Implements hook_theme().
  */
@@ -12,4 +17,3 @@ function masstimes_widget_theme($existing, $type, $theme, $path) {
     ],
   ];
 }
-

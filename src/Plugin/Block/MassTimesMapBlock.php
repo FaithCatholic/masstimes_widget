@@ -48,7 +48,7 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
   }
 
   /**
-   * provide default values for our lat and long
+   * Provide default values for our lat and long.
    */
   public function defaultConfiguration() {
     return [
@@ -58,7 +58,7 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
   }
 
   /**
-   * adds fields for default lat and long
+   * Adds fields for default lat and long.
    */
   public function blockForm($form, FormStateInterface $form_state) {
     $form = parent::blockForm($form, $form_state);
@@ -81,7 +81,7 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
   }
 
   /**
-   * saving default lat/long to block
+   * Saving default lat/long to block.
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
     parent::blockSubmit($form, $form_state);
@@ -98,7 +98,7 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
     $lat = $request->query->get('lat');
     $lon = $request->query->get('long');
 
-    // if url doesn't have lat/long, we fall back to block defaults
+    // If url doesn't have lat/long, we fall back to block defaults.
     if ((string) $lat === '' || (string) $lon === '') {
       $lat = $this->configuration['default_lat'];
       $lon = $this->configuration['default_lon'];
@@ -115,7 +115,7 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
       }
     }
 
-    // build GeoJSON features
+    // Build GeoJSON features.
     $features = [];
     foreach ($parishes as $i => $p) {
       if (empty($p['latitude']) || empty($p['longitude'])) {
@@ -137,7 +137,7 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
       ];
     }
 
-    // find our map center.
+    // Find our map center.
     if (!empty($features)) {
       [$lon0, $lat0] = $features[0]['geometry']['coordinates'];
       $center = [$lat0, $lon0];
@@ -149,14 +149,14 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
       $center = [0, 0];
     }
 
-    // build the settings array we will pass into twig and the javascript.
+    // Build the settings array we will pass into twig and the javascript.
     $settings = [
       'mapOptions'  => ['center' => $center, 'zoom' => 12],
       'geojson'     => ['type' => 'FeatureCollection', 'features' => $features],
       'parishes'    => $parishes,
-      // default lat and long from block settings
-      'defaultLat'  => is_numeric($this->configuration['default_lat']) ? (float)$this->configuration['default_lat'] : NULL,
-      'defaultLon'  => is_numeric($this->configuration['default_lon']) ? (float)$this->configuration['default_lon'] : NULL,
+      // Default lat and long from block settings.
+      'defaultLat'  => is_numeric($this->configuration['default_lat']) ? (float) $this->configuration['default_lat'] : NULL,
+      'defaultLon'  => is_numeric($this->configuration['default_lon']) ? (float) $this->configuration['default_lon'] : NULL,
     ];
 
     return [
