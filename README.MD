@@ -31,10 +31,13 @@ A custom Drupal module embedding a full-screen interactive map and sidebar list 
 
 ## 🔧 Installation
 
-1. Clone or download into `web/modules/custom/mass_times_widget`.  
-2. Ensure dependencies in `mass_times_widget.info.yml` are met (e.g. `leaflet` module).  
-3. Run `drush en mass_times_widget -y` (or enable via the UI).  
-4. Clear caches: `drush cr`.
+1. Clone or download into `web/modules/custom/masstimes_widget`.  
+2. Run `drush en masstimes_widget -y` (or enable via the UI).  
+3. Clear caches: `drush cr`.
+
+No contrib module dependencies are required. Leaflet is loaded from a CDN by the
+module's own asset library, and Font Awesome is expected to be provided by your
+theme or another module on your site.
 
 ---
 
