@@ -60,7 +60,7 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('masstimes_widget.service'),
+      $container->get(MassTimesService::class),
       $container->get('request_stack'),
       $container->get('logger.factory')
     );
