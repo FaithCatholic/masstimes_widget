@@ -7,10 +7,6 @@
 
 /**
  * Implements hook_theme().
- *
- * @phpstan-param array<string, mixed> $existing
- *
- * @phpstan-return array<string, mixed>
  */
 function masstimes_widget_theme(array $existing, string $type, string $theme, string $path): array {
   $module_path = \Drupal::moduleHandler()->getModule('masstimes_widget')->getPath();

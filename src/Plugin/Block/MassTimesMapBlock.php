@@ -54,8 +54,6 @@ class MassTimesMapBlock extends BlockBase implements ContainerFactoryPluginInter
 
   /**
    * {@inheritdoc}
-   *
-   * @phpstan-param array<string, mixed> $configuration
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
