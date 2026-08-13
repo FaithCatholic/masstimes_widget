@@ -3,9 +3,9 @@ masstimes_map:
   css:
     theme:
       css/masstimes_map.css: {}
-      https://unpkg.com/leaflet/dist/leaflet.css: { type: external }
+      https://unpkg.com/leaflet@1.9.4/dist/leaflet.css: { type: external }
   js:
-    https://unpkg.com/leaflet/dist/leaflet.js: { type: external, minified: true }
+    https://unpkg.com/leaflet@1.9.4/dist/leaflet.js: { type: external, minified: true }
     js/masstimes_map.js: {}
   dependencies:
     - core/drupal
